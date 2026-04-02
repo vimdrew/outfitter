@@ -1,92 +1,128 @@
-# outfitter
+# Outfitter
 
-This project was scaffolded with [`create-mugnavo`](https://github.com/mugnavo/create-mugnavo).
+A minimalist wardrobe management app for organizing clothing items and creating outfits. Built with a clean, streetwear-inspired aesthetic.
 
-```bash
-pnpm create mugnavo
-```
+![Outfitter](./docs/screenshot.png)
 
-- [React 19](https://react.dev) + [React Compiler](https://react.dev/learn/react-compiler)
-- TanStack [Start](https://tanstack.com/start/latest) + [Router](https://tanstack.com/router/latest) + [Query](https://tanstack.com/query/latest)
-- [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/) + [Base UI](https://base-ui.com/) (base-maia, [`--preset b1ZOKpgEC`](https://ui.shadcn.com/create?preset=b1ZOKpgEC&base=base&template=start))
-- [Vite 8](https://vite.dev) + [Nitro v3](https://nitro.build/)
+## Features
+
+- **Wardrobe Management** - Upload and organize your clothing items with automatic color detection
+- **Smart Filtering** - Filter by category, colors that actually exist in your wardrobe, and season
+- **Outfit Builder** - Create outfits by selecting items from your wardrobe
+- **Wear Tracking** - Track how many times you've worn each item or outfit
+- **Auto Color Extraction** - Automatically detects colors from uploaded clothing photos using client-side image analysis
+
+## Tech Stack
+
+- [TanStack Start](https://tanstack.com/start/latest) + [Router](https://tanstack.com/router/latest) + [Query](https://tanstack.com/query/latest)
+- [React 19](https://react.dev) + TypeScript
+- [Tailwind CSS v4](https://tailwindcss.com/) + shadcn/ui
 - [Drizzle ORM](https://orm.drizzle.team/) + PostgreSQL
-- [Better Auth](https://www.better-auth.com/)
-- [Oxlint](https://oxc.rs/docs/guide/usage/linter.html) + [Oxfmt](https://oxc.rs/docs/guide/usage/formatter.html)
-
-> [!TIP]
-> This template is also available as a monorepo, powered by [Vite+](https://viteplus.dev/) and pnpm. See [mugnavo/tanstarter-plus](https://github.com/mugnavo/tanstarter-plus).
+- [Better Auth](https://www.better-auth.com/) for authentication
+- [Cloudinary](https://cloudinary.com/) for image hosting
 
 ## Getting Started
 
-1. [Use this template](https://github.com/new?template_name=tanstarter&template_owner=mugnavo) or create a project using our CLI:
+### Prerequisites
 
-   ```bash
-   pnpm create mugnavo
-   ```
+- Node.js 20+
+- PostgreSQL database
+- Cloudinary account (for image uploads)
 
-2. Create a `.env` file based on [`.env.example`](./.env.example).
+### Setup
 
-3. Generate the initial migration with drizzle-kit, then apply to your database:
+1. Clone the repository:
 
-   ```sh
-   pnpm db generate
-   pnpm db migrate
-   ```
+```bash
+git clone https://github.com/vimdrew/outfitter.git
+cd outfitter
+```
 
-   https://orm.drizzle.team/docs/migrations
+2. Install dependencies:
 
-4. Run the development server:
+```bash
+pnpm install
+```
 
-   ```bash
-   pnpm dev
-   ```
+3. Create a `.env` file based on `.env.example`:
 
-   The development server should now be running at [http://localhost:3000](http://localhost:3000).
+```bash
+cp .env.example .env
+```
 
-## Deploying to production
+4. Update the `.env` file with your credentials:
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/66acdee6-8e42-436f-9943-a67cad998f63/deploy-status)](https://app.netlify.com/projects/mugnavo-tanstarter/deploys)
+```
+DATABASE_URL="postgresql://postgres:password@localhost:5432/outfitter"
+BETTER_AUTH_SECRET=<generate-with-pnpm-auth-secret>
+CLOUDINARY_CLOUD_NAME=<your-cloud-name>
+CLOUDINARY_API_KEY=<your-api-key>
+CLOUDINARY_API_SECRET=<your-api-secret>
+CLOUDINARY_UPLOAD_PRESET=<your-upload-preset>
+```
 
-The [vite config](./vite.config.ts#L19-L20) is configured to use Nitro by default, which supports many [deployment presets](https://nitro.build/deploy) like Netlify, Vercel, Node.js, and more.
+5. Start PostgreSQL with Docker:
 
-Refer to the [TanStack Start hosting docs](https://tanstack.com/start/latest/docs/framework/react/guide/hosting) for more information.
+```bash
+docker-compose up -d
+```
 
-## Issue watchlist
+6. Generate and apply database migrations:
 
-- [Router/Start issues](https://github.com/TanStack/router/issues) - TanStack Start is in RC.
-- [Devtools releases](https://github.com/TanStack/devtools/releases) - TanStack Devtools is in alpha and may still have breaking changes.
-- [Nitro v3 beta](https://nitro.build/blog/v3-beta) - The template is configured with Nitro v3 beta by default.
+```bash
+pnpm db generate
+pnpm db migrate
+```
 
-## Goodies
+7. Start the development server:
 
-#### Git hooks
+```bash
+pnpm dev
+```
 
-We use [Husky](https://typicode.github.io/husky/) to run git hooks with the following tools:
+The app will be available at [http://localhost:3000](http://localhost:3000).
 
-- [lint-staged](https://github.com/lint-staged/lint-staged) - Run Oxfmt to format staged files on commit (`pre-commit`).
+## Project Structure
 
-#### Scripts
+```
+src/
+├── components/           # React components
+│   ├── ui/              # shadcn/ui components
+│   ├── ClothingItemCard.tsx
+│   ├── FilterBar.tsx
+│   ├── ItemUploadDialog.tsx
+│   └── WardrobeView.tsx
+├── lib/
+│   ├── auth/            # Better Auth configuration
+│   ├── cloudinary/      # Cloudinary upload utilities
+│   ├── colors.ts        # Color extraction utilities
+│   ├── db/              # Drizzle ORM setup
+│   └── wardrobe/        # Wardrobe types and server functions
+├── routes/              # TanStack Router routes
+└── styles.css           # Global styles
+```
 
-We use **pnpm** by default, but you can modify these scripts in [package.json](./package.json) to use your preferred package manager.
+## Available Scripts
 
-- **`auth:generate`** - Regenerate the [auth db schema](./src/lib/db/schema/auth.schema.ts) if you've made changes to your Better Auth [config](./src/lib/auth/auth.ts).
-- **`db`** - Run [drizzle-kit](https://orm.drizzle.team/docs/kit-overview) commands. (e.g. `pnpm db generate`, `pnpm db studio`)
-- **`ui`** - The shadcn/ui CLI. (e.g. `pnpm ui add button`)
-- **`format`**, **`lint`** - Run Oxfmt and Oxlint, or both via `pnpm check`.
-- **`deps`** - Selectively upgrade dependencies via taze.
+| Command            | Description                  |
+| ------------------ | ---------------------------- |
+| `pnpm dev`         | Start development server     |
+| `pnpm build`       | Build for production         |
+| `pnpm start`       | Start production server      |
+| `pnpm lint`        | Run type-aware linting       |
+| `pnpm format`      | Format code                  |
+| `pnpm db generate` | Generate database migrations |
+| `pnpm db migrate`  | Apply database migrations    |
+| `pnpm db studio`   | Open Drizzle Studio          |
 
-#### Utilities
+## Color System
 
-- [`auth/middleware.ts`](./src/lib/auth/middleware.ts) - Sample middleware for forcing authentication on server functions. (see [#5](https://github.com/mugnavo/tanstarter/issues/5#issuecomment-2615905686) and [#17](https://github.com/mugnavo/tanstarter/issues/17#issuecomment-2853482062))
-- [`theme-toggle.tsx`](./src/components/theme-toggle.tsx), [`theme-provider.tsx`](./src/components/theme-provider.tsx) - A theme toggle and provider for toggling between light and dark mode. ([#7](https://github.com/mugnavo/tanstarter/issues/7#issuecomment-3141530412))
+The app uses a simplified 10-color palette:
+
+- Black, White, Gray, Navy, Blue, Red, Green, Brown, Beige, Multi
+
+Colors are automatically extracted from uploaded images using client-side color analysis, but users can manually override if needed.
 
 ## License
 
-Code in this template is public domain via [Unlicense](./LICENSE). Feel free to remove or replace for your own project.
-
-## Ecosystem
-
-- [@tanstack/intent](https://tanstack.com/intent/latest/docs/getting-started/quick-start-consumers) - Up-to-date skills for your AI agents, auto-synchronized from your installed dependencies.
-- [awesome-tanstack-start](https://github.com/Balastrong/awesome-tanstack-start) - A curated list of awesome resources for TanStack Start.
-- [shadcn/ui Directory](https://ui.shadcn.com/docs/directory), [MCP](https://ui.shadcn.com/docs/mcp), [shoogle.dev](https://shoogle.dev/) - Component directories & registries for shadcn/ui.
+MIT
