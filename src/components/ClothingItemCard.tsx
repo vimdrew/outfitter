@@ -1,4 +1,4 @@
-import { MoreHorizontal, Shirt, Pencil, Trash2 } from "lucide-react";
+import { MoreHorizontal, Shirt, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,77 +15,94 @@ import { CATEGORY_LABELS } from "@/lib/wardrobe/types";
 
 interface ClothingItemCardProps {
   item: ClothingItemWithDetails;
+  index?: number;
   onEdit?: (item: ClothingItemWithDetails) => void;
   onDelete?: (item: ClothingItemWithDetails) => void;
   onWear?: (item: ClothingItemWithDetails) => void;
 }
 
-export function ClothingItemCard({ item, onEdit, onDelete, onWear }: ClothingItemCardProps) {
+export function ClothingItemCard({
+  item,
+  index = 0,
+  onEdit,
+  onDelete,
+  onWear,
+}: ClothingItemCardProps) {
   return (
-    <Card className="group relative overflow-hidden">
-      <div className="aspect-square overflow-hidden bg-muted">
-        <img
-          alt={item.name}
-          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-          src={item.imageUrl}
-        />
-      </div>
+    <div
+      className="item-card animate-fade-in-up"
+      style={{
+        animationDelay: `${index * 50}ms`,
+        opacity: 0,
+      }}
+    >
+      <Card className="group relative overflow-hidden border border-foreground/10 bg-card transition-all hover:border-foreground/30">
+        <div className="aspect-square overflow-hidden bg-muted/50">
+          <img
+            alt={item.name}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            src={item.imageUrl}
+          />
+        </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
-          <Button size="icon" variant="secondary">
-            <MoreHorizontal className="h-4 w-4" />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          {onEdit && (
-            <DropdownMenuItem onClick={() => onEdit(item)}>
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-          )}
-          {onWear && (
-            <DropdownMenuItem onClick={() => onWear(item)}>
-              <Shirt className="mr-2 h-4 w-4" />
-              Mark as Worn
-            </DropdownMenuItem>
-          )}
-          <DropdownMenuSeparator />
-          {onDelete && (
-            <DropdownMenuItem
-              className="text-destructive focus:text-destructive"
-              onClick={() => onDelete(item)}
+        <DropdownMenu>
+          <DropdownMenuTrigger className="absolute top-2 right-2 opacity-0 transition-opacity group-hover:opacity-100">
+            <Button
+              size="icon"
+              variant="secondary"
+              className="h-7 w-7 border border-foreground/20 bg-background/80"
             >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
+              <MoreHorizontal className="h-3.5 w-3.5" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="rounded-sm border-foreground/20">
+            {onWear && (
+              <DropdownMenuItem onClick={() => onWear(item)}>
+                <Shirt className="mr-2 h-3.5 w-3.5" />
+                Mark as Worn
+              </DropdownMenuItem>
+            )}
+            {onDelete && (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive focus:text-destructive"
+                  onClick={() => onDelete(item)}
+                >
+                  <Trash2 className="mr-2 h-3.5 w-3.5" />
+                  Delete
+                </DropdownMenuItem>
+              </>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
-      <CardHeader className="p-4 pb-2">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="leading-tight font-medium">{item.name}</h3>
-        </div>
-      </CardHeader>
+        <CardHeader className="p-3 pb-1">
+          <h3 className="truncate text-sm font-medium tracking-tight">{item.name}</h3>
+        </CardHeader>
 
-      <CardContent className="p-4 pt-0">
-        <Badge className="mb-2" variant="secondary">
-          {CATEGORY_LABELS[item.category]}
-        </Badge>
-        <div className="flex flex-wrap gap-1">
-          {item.colors.map((c) => (
-            <Badge className="text-xs" key={c.color} variant="outline">
-              {c.color}
-            </Badge>
-          ))}
-        </div>
-      </CardContent>
+        <CardContent className="p-3 pt-0">
+          <Badge className="mb-2 text-[10px] tracking-widest uppercase" variant="secondary">
+            {CATEGORY_LABELS[item.category]}
+          </Badge>
+          <div className="flex flex-wrap gap-1">
+            {item.colors.map((c) => (
+              <Badge
+                key={c.color}
+                className="border-foreground/20 text-[9px] tracking-wider uppercase"
+                variant="outline"
+              >
+                {c.color}
+              </Badge>
+            ))}
+          </div>
+        </CardContent>
 
-      <CardFooter className="p-4 pt-0 text-xs text-muted-foreground">
-        Worn {item.timesWorn} time{item.timesWorn !== 1 ? "s" : ""}
-      </CardFooter>
-    </Card>
+        <CardFooter className="p-3 pt-0 text-[10px] tracking-wider text-muted-foreground uppercase">
+          {item.timesWorn} worn
+        </CardFooter>
+      </Card>
+    </div>
   );
 }

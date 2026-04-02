@@ -22,31 +22,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { $uploadImage } from "@/lib/cloudinary/upload";
+import { CORE_COLORS, COLOR_HEX, extractColorsFromImage } from "@/lib/colors";
 import type { Category, ClothingItemWithDetails, Color, Season } from "@/lib/wardrobe/types";
 import { CATEGORIES, CATEGORY_LABELS, SEASONS, SEASON_LABELS } from "@/lib/wardrobe/types";
-
-const COLORS: Color[] = [
-  "black",
-  "white",
-  "gray",
-  "navy",
-  "blue",
-  "light-blue",
-  "red",
-  "pink",
-  "orange",
-  "yellow",
-  "green",
-  "olive",
-  "brown",
-  "tan",
-  "beige",
-  "purple",
-  "burgundy",
-  "cream",
-  "multi",
-  "other",
-];
 
 interface ItemUploadDialogProps {
   open: boolean;
@@ -60,6 +38,7 @@ export function ItemUploadDialog({ open, onOpenChange, onSuccess }: ItemUploadDi
   const [name, setName] = useState("");
   const [category, setCategory] = useState<Category | "">("");
   const [selectedColors, setSelectedColors] = useState<Color[]>([]);
+  const [extractedColors, setExtractedColors] = useState<Color[]>([]);
   const [selectedSeasons, setSelectedSeasons] = useState<Season[]>([]);
   const uploadTimestamp = useRef<number | null>(null);
 
@@ -71,17 +50,22 @@ export function ItemUploadDialog({ open, onOpenChange, onSuccess }: ItemUploadDi
     },
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = (event) => {
-      setImagePreview(event.target?.result as string);
+    reader.onload = async (event) => {
+      const dataUrl = event.target?.result as string;
+      setImagePreview(dataUrl);
       setFileName(file.name);
+
+      const colors = await extractColorsFromImage(dataUrl);
+      setExtractedColors(colors);
+      setSelectedColors(colors);
     };
     reader.readAsDataURL(file);
-  };
+  }, []);
 
   const handleColorToggle = (color: Color) => {
     setSelectedColors((prev) =>
@@ -101,11 +85,12 @@ export function ItemUploadDialog({ open, onOpenChange, onSuccess }: ItemUploadDi
     setName("");
     setCategory("");
     setSelectedColors([]);
+    setExtractedColors([]);
     setSelectedSeasons([]);
   }, []);
 
   const handleSubmit = useCallback(
-    async (e: React.SubmitEvent) => {
+    async (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
 
       if (!imagePreview || !category) return;
@@ -163,34 +148,40 @@ export function ItemUploadDialog({ open, onOpenChange, onSuccess }: ItemUploadDi
 
   return (
     <Dialog onOpenChange={handleOpenChange} open={open}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[500px]">
-        <DialogHeader>
-          <DialogTitle>Add Clothing Item</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="animate-slide-in-up max-h-[90vh] overflow-y-auto rounded-sm border border-foreground/20 sm:max-w-[480px]">
+        <DialogHeader className="border-b border-foreground/10 pb-4">
+          <DialogTitle className="text-xs tracking-widest uppercase">Add Clothing Item</DialogTitle>
+          <DialogDescription className="text-xs tracking-wider text-muted-foreground uppercase">
             Upload a photo of your clothing item and add details.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
-          <div className="grid gap-6 py-4">
+          <div className="grid gap-5 py-4">
             <div className="flex flex-col items-center justify-center">
               {imagePreview ? (
-                <div className="relative aspect-square w-full max-w-[300px] overflow-hidden rounded-lg border">
+                <div className="relative aspect-square w-full max-w-[280px] overflow-hidden border border-foreground/20">
                   <img alt="Preview" className="h-full w-full object-cover" src={imagePreview} />
                   <Button
-                    className="absolute top-2 right-2"
+                    className="absolute top-2 right-2 h-7 w-7 rounded-sm border border-foreground/20 bg-background/80"
                     size="icon"
                     type="button"
                     variant="secondary"
-                    onClick={() => setImagePreview(null)}
+                    onClick={() => {
+                      setImagePreview(null);
+                      setExtractedColors([]);
+                      setSelectedColors([]);
+                    }}
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-3.5 w-3.5" />
                   </Button>
                 </div>
               ) : (
-                <label className="flex aspect-square w-full max-w-[300px] cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/50 transition-colors hover:bg-muted">
-                  <ImagePlus className="mb-2 h-10 w-10 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Click to upload</span>
+                <label className="flex aspect-square w-full max-w-[280px] cursor-pointer flex-col items-center justify-center border border-dashed border-foreground/20 bg-muted/30 transition-colors hover:bg-muted/50">
+                  <ImagePlus className="mb-2 h-8 w-8 text-muted-foreground" />
+                  <span className="text-xs tracking-widest text-muted-foreground uppercase">
+                    Click to upload
+                  </span>
                   <input
                     accept="image/*"
                     className="hidden"
@@ -201,25 +192,30 @@ export function ItemUploadDialog({ open, onOpenChange, onSuccess }: ItemUploadDi
               )}
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="name">Name</Label>
+            <div className="grid gap-1.5">
+              <Label className="text-[10px] tracking-widest uppercase" htmlFor="name">
+                Name
+              </Label>
               <Input
                 id="name"
+                className="rounded-sm border-foreground/20 bg-background"
                 placeholder="e.g., Blue Oxford Shirt"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="category">Category</Label>
+            <div className="grid gap-1.5">
+              <Label className="text-[10px] tracking-widest uppercase" htmlFor="category">
+                Category
+              </Label>
               <Select value={category} onValueChange={(v) => setCategory(v as Category)}>
-                <SelectTrigger>
+                <SelectTrigger className="rounded-sm border-foreground/20 bg-background">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
                   {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
+                    <SelectItem key={cat} value={cat} className="text-xs">
                       {CATEGORY_LABELS[cat]}
                     </SelectItem>
                   ))}
@@ -227,41 +223,74 @@ export function ItemUploadDialog({ open, onOpenChange, onSuccess }: ItemUploadDi
               </Select>
             </div>
 
-            <div className="grid gap-2">
-              <Label>Colors</Label>
-              <div className="flex flex-wrap gap-2">
-                {COLORS.map((color) => (
-                  <label className="flex cursor-pointer items-center gap-2" key={color}>
-                    <Checkbox
-                      checked={selectedColors.includes(color)}
-                      onCheckedChange={() => handleColorToggle(color)}
-                    />
-                    <span className="text-sm capitalize">{color.replace("-", " ")}</span>
-                  </label>
-                ))}
+            <div className="grid gap-1.5">
+              <Label className="text-[10px] tracking-widest uppercase">
+                Colors {extractedColors.length > 0 && "(auto-detected)"}
+              </Label>
+              <div className="flex flex-wrap gap-1.5">
+                {CORE_COLORS.map((color) => {
+                  const isSelected = selectedColors.includes(color);
+                  const isExtracted = extractedColors.includes(color);
+                  return (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => handleColorToggle(color)}
+                      className={`flex items-center gap-1.5 rounded-sm border px-2 py-1 text-xs transition-all ${
+                        isSelected
+                          ? "border-foreground bg-foreground text-background"
+                          : "border-foreground/20 hover:border-foreground/50"
+                      } `}
+                    >
+                      <span
+                        className="h-3 w-3 rounded-full border border-foreground/30"
+                        style={{
+                          backgroundColor: color === "multi" ? "transparent" : COLOR_HEX[color],
+                          background:
+                            color === "multi"
+                              ? "conic-gradient(red, yellow, green, blue, red)"
+                              : undefined,
+                        }}
+                      />
+                      <span className="capitalize">{color}</span>
+                      {isExtracted && !isSelected && (
+                        <span className="ml-1 text-[9px] tracking-wider text-muted-foreground uppercase">
+                          (suggested)
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="grid gap-2">
-              <Label>Seasons</Label>
-              <div className="flex flex-wrap gap-2">
+            <div className="grid gap-1.5">
+              <Label className="text-[10px] tracking-widest uppercase">Seasons</Label>
+              <div className="flex flex-wrap gap-1.5">
                 {SEASONS.map((season) => (
-                  <label className="flex cursor-pointer items-center gap-2" key={season}>
+                  <label className="flex cursor-pointer items-center gap-1.5" key={season}>
                     <Checkbox
+                      className="h-3.5 w-3.5 rounded-sm border-foreground/30"
                       checked={selectedSeasons.includes(season)}
                       onCheckedChange={() => handleSeasonToggle(season)}
                     />
-                    <span className="text-sm">{SEASON_LABELS[season]}</span>
+                    <span className="text-xs">{SEASON_LABELS[season]}</span>
                   </label>
                 ))}
               </div>
             </div>
           </div>
 
-          <DialogFooter>
-            <Button disabled={!imagePreview || !category || isUploading} type="submit">
+          <DialogFooter className="border-t border-foreground/10 pt-4">
+            <Button
+              disabled={!imagePreview || !category || isUploading}
+              type="submit"
+              className="w-full rounded-sm border border-foreground/20 bg-foreground text-background hover:bg-foreground/90"
+            >
               {isUploading && <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />}
-              Add Item
+              <span className="text-xs tracking-widest uppercase">
+                {isUploading ? "Adding..." : "Add Item"}
+              </span>
             </Button>
           </DialogFooter>
         </form>

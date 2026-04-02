@@ -8,6 +8,13 @@
       "when": 1775085694076,
       "tag": "0000_curious_rogue",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1775119519272,
+      "tag": "0001_smiling_cassandra_nova",
+      "breakpoints": true
     }
   ]
 }

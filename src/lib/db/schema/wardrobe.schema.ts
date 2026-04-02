@@ -29,21 +29,11 @@ export const colorEnum = pgEnum("color", [
   "gray",
   "navy",
   "blue",
-  "light-blue",
   "red",
-  "pink",
-  "orange",
-  "yellow",
   "green",
-  "olive",
   "brown",
-  "tan",
   "beige",
-  "purple",
-  "burgundy",
-  "cream",
   "multi",
-  "other",
 ]);
 
 export const clothingItem = pgTable("clothing_item", {

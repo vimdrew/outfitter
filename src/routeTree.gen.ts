@@ -14,9 +14,15 @@ import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GuestSignupRouteImport } from './routes/_guest/signup'
 import { Route as GuestLoginRouteImport } from './routes/_guest/login'
-import { Route as AuthAppRouteRouteImport } from './routes/_auth/app/route'
-import { Route as AuthAppIndexRouteImport } from './routes/_auth/app/index'
+import { Route as AuthWardrobeRouteRouteImport } from './routes/_auth/wardrobe/route'
+import { Route as AuthOutfitsRouteRouteImport } from './routes/_auth/outfits/route'
+import { Route as AuthWardrobeIndexRouteImport } from './routes/_auth/wardrobe/index'
+import { Route as AuthOutfitsIndexRouteImport } from './routes/_auth/outfits/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AuthOutfitsNewRouteRouteImport } from './routes/_auth/outfits/new/route'
+import { Route as AuthOutfitOutfitIdRouteRouteImport } from './routes/_auth/outfit.$outfitId/route'
+import { Route as AuthOutfitsNewIndexRouteImport } from './routes/_auth/outfits/new/index'
+import { Route as AuthOutfitOutfitIdIndexRouteImport } from './routes/_auth/outfit.$outfitId/index'
 
 const GuestRouteRoute = GuestRouteRouteImport.update({
   id: '/_guest',
@@ -41,63 +47,134 @@ const GuestLoginRoute = GuestLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => GuestRouteRoute,
 } as any)
-const AuthAppRouteRoute = AuthAppRouteRouteImport.update({
-  id: '/app',
-  path: '/app',
+const AuthWardrobeRouteRoute = AuthWardrobeRouteRouteImport.update({
+  id: '/wardrobe',
+  path: '/wardrobe',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const AuthAppIndexRoute = AuthAppIndexRouteImport.update({
+const AuthOutfitsRouteRoute = AuthOutfitsRouteRouteImport.update({
+  id: '/outfits',
+  path: '/outfits',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthWardrobeIndexRoute = AuthWardrobeIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthAppRouteRoute,
+  getParentRoute: () => AuthWardrobeRouteRoute,
+} as any)
+const AuthOutfitsIndexRoute = AuthOutfitsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthOutfitsRouteRoute,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthOutfitsNewRouteRoute = AuthOutfitsNewRouteRouteImport.update({
+  id: '/new',
+  path: '/new',
+  getParentRoute: () => AuthOutfitsRouteRoute,
+} as any)
+const AuthOutfitOutfitIdRouteRoute = AuthOutfitOutfitIdRouteRouteImport.update({
+  id: '/outfit/$outfitId',
+  path: '/outfit/$outfitId',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthOutfitsNewIndexRoute = AuthOutfitsNewIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthOutfitsNewRouteRoute,
+} as any)
+const AuthOutfitOutfitIdIndexRoute = AuthOutfitOutfitIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthOutfitOutfitIdRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/app': typeof AuthAppRouteRouteWithChildren
+  '/outfits': typeof AuthOutfitsRouteRouteWithChildren
+  '/wardrobe': typeof AuthWardrobeRouteRouteWithChildren
   '/login': typeof GuestLoginRoute
   '/signup': typeof GuestSignupRoute
+  '/outfit/$outfitId': typeof AuthOutfitOutfitIdRouteRouteWithChildren
+  '/outfits/new': typeof AuthOutfitsNewRouteRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/app/': typeof AuthAppIndexRoute
+  '/outfits/': typeof AuthOutfitsIndexRoute
+  '/wardrobe/': typeof AuthWardrobeIndexRoute
+  '/outfit/$outfitId/': typeof AuthOutfitOutfitIdIndexRoute
+  '/outfits/new/': typeof AuthOutfitsNewIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof GuestLoginRoute
   '/signup': typeof GuestSignupRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/app': typeof AuthAppIndexRoute
+  '/outfits': typeof AuthOutfitsIndexRoute
+  '/wardrobe': typeof AuthWardrobeIndexRoute
+  '/outfit/$outfitId': typeof AuthOutfitOutfitIdIndexRoute
+  '/outfits/new': typeof AuthOutfitsNewIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_guest': typeof GuestRouteRouteWithChildren
-  '/_auth/app': typeof AuthAppRouteRouteWithChildren
+  '/_auth/outfits': typeof AuthOutfitsRouteRouteWithChildren
+  '/_auth/wardrobe': typeof AuthWardrobeRouteRouteWithChildren
   '/_guest/login': typeof GuestLoginRoute
   '/_guest/signup': typeof GuestSignupRoute
+  '/_auth/outfit/$outfitId': typeof AuthOutfitOutfitIdRouteRouteWithChildren
+  '/_auth/outfits/new': typeof AuthOutfitsNewRouteRouteWithChildren
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/_auth/app/': typeof AuthAppIndexRoute
+  '/_auth/outfits/': typeof AuthOutfitsIndexRoute
+  '/_auth/wardrobe/': typeof AuthWardrobeIndexRoute
+  '/_auth/outfit/$outfitId/': typeof AuthOutfitOutfitIdIndexRoute
+  '/_auth/outfits/new/': typeof AuthOutfitsNewIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/app' | '/login' | '/signup' | '/api/auth/$' | '/app/'
+  fullPaths:
+    | '/'
+    | '/outfits'
+    | '/wardrobe'
+    | '/login'
+    | '/signup'
+    | '/outfit/$outfitId'
+    | '/outfits/new'
+    | '/api/auth/$'
+    | '/outfits/'
+    | '/wardrobe/'
+    | '/outfit/$outfitId/'
+    | '/outfits/new/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/signup' | '/api/auth/$' | '/app'
+  to:
+    | '/'
+    | '/login'
+    | '/signup'
+    | '/api/auth/$'
+    | '/outfits'
+    | '/wardrobe'
+    | '/outfit/$outfitId'
+    | '/outfits/new'
   id:
     | '__root__'
     | '/'
     | '/_auth'
     | '/_guest'
-    | '/_auth/app'
+    | '/_auth/outfits'
+    | '/_auth/wardrobe'
     | '/_guest/login'
     | '/_guest/signup'
+    | '/_auth/outfit/$outfitId'
+    | '/_auth/outfits/new'
     | '/api/auth/$'
-    | '/_auth/app/'
+    | '/_auth/outfits/'
+    | '/_auth/wardrobe/'
+    | '/_auth/outfit/$outfitId/'
+    | '/_auth/outfits/new/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -144,19 +221,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuestLoginRouteImport
       parentRoute: typeof GuestRouteRoute
     }
-    '/_auth/app': {
-      id: '/_auth/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof AuthAppRouteRouteImport
+    '/_auth/wardrobe': {
+      id: '/_auth/wardrobe'
+      path: '/wardrobe'
+      fullPath: '/wardrobe'
+      preLoaderRoute: typeof AuthWardrobeRouteRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_auth/app/': {
-      id: '/_auth/app/'
+    '/_auth/outfits': {
+      id: '/_auth/outfits'
+      path: '/outfits'
+      fullPath: '/outfits'
+      preLoaderRoute: typeof AuthOutfitsRouteRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/wardrobe/': {
+      id: '/_auth/wardrobe/'
       path: '/'
-      fullPath: '/app/'
-      preLoaderRoute: typeof AuthAppIndexRouteImport
-      parentRoute: typeof AuthAppRouteRoute
+      fullPath: '/wardrobe/'
+      preLoaderRoute: typeof AuthWardrobeIndexRouteImport
+      parentRoute: typeof AuthWardrobeRouteRoute
+    }
+    '/_auth/outfits/': {
+      id: '/_auth/outfits/'
+      path: '/'
+      fullPath: '/outfits/'
+      preLoaderRoute: typeof AuthOutfitsIndexRouteImport
+      parentRoute: typeof AuthOutfitsRouteRoute
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -165,27 +256,96 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/outfits/new': {
+      id: '/_auth/outfits/new'
+      path: '/new'
+      fullPath: '/outfits/new'
+      preLoaderRoute: typeof AuthOutfitsNewRouteRouteImport
+      parentRoute: typeof AuthOutfitsRouteRoute
+    }
+    '/_auth/outfit/$outfitId': {
+      id: '/_auth/outfit/$outfitId'
+      path: '/outfit/$outfitId'
+      fullPath: '/outfit/$outfitId'
+      preLoaderRoute: typeof AuthOutfitOutfitIdRouteRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/outfits/new/': {
+      id: '/_auth/outfits/new/'
+      path: '/'
+      fullPath: '/outfits/new/'
+      preLoaderRoute: typeof AuthOutfitsNewIndexRouteImport
+      parentRoute: typeof AuthOutfitsNewRouteRoute
+    }
+    '/_auth/outfit/$outfitId/': {
+      id: '/_auth/outfit/$outfitId/'
+      path: '/'
+      fullPath: '/outfit/$outfitId/'
+      preLoaderRoute: typeof AuthOutfitOutfitIdIndexRouteImport
+      parentRoute: typeof AuthOutfitOutfitIdRouteRoute
+    }
   }
 }
 
-interface AuthAppRouteRouteChildren {
-  AuthAppIndexRoute: typeof AuthAppIndexRoute
+interface AuthOutfitsNewRouteRouteChildren {
+  AuthOutfitsNewIndexRoute: typeof AuthOutfitsNewIndexRoute
 }
 
-const AuthAppRouteRouteChildren: AuthAppRouteRouteChildren = {
-  AuthAppIndexRoute: AuthAppIndexRoute,
+const AuthOutfitsNewRouteRouteChildren: AuthOutfitsNewRouteRouteChildren = {
+  AuthOutfitsNewIndexRoute: AuthOutfitsNewIndexRoute,
 }
 
-const AuthAppRouteRouteWithChildren = AuthAppRouteRoute._addFileChildren(
-  AuthAppRouteRouteChildren,
-)
+const AuthOutfitsNewRouteRouteWithChildren =
+  AuthOutfitsNewRouteRoute._addFileChildren(AuthOutfitsNewRouteRouteChildren)
+
+interface AuthOutfitsRouteRouteChildren {
+  AuthOutfitsNewRouteRoute: typeof AuthOutfitsNewRouteRouteWithChildren
+  AuthOutfitsIndexRoute: typeof AuthOutfitsIndexRoute
+}
+
+const AuthOutfitsRouteRouteChildren: AuthOutfitsRouteRouteChildren = {
+  AuthOutfitsNewRouteRoute: AuthOutfitsNewRouteRouteWithChildren,
+  AuthOutfitsIndexRoute: AuthOutfitsIndexRoute,
+}
+
+const AuthOutfitsRouteRouteWithChildren =
+  AuthOutfitsRouteRoute._addFileChildren(AuthOutfitsRouteRouteChildren)
+
+interface AuthWardrobeRouteRouteChildren {
+  AuthWardrobeIndexRoute: typeof AuthWardrobeIndexRoute
+}
+
+const AuthWardrobeRouteRouteChildren: AuthWardrobeRouteRouteChildren = {
+  AuthWardrobeIndexRoute: AuthWardrobeIndexRoute,
+}
+
+const AuthWardrobeRouteRouteWithChildren =
+  AuthWardrobeRouteRoute._addFileChildren(AuthWardrobeRouteRouteChildren)
+
+interface AuthOutfitOutfitIdRouteRouteChildren {
+  AuthOutfitOutfitIdIndexRoute: typeof AuthOutfitOutfitIdIndexRoute
+}
+
+const AuthOutfitOutfitIdRouteRouteChildren: AuthOutfitOutfitIdRouteRouteChildren =
+  {
+    AuthOutfitOutfitIdIndexRoute: AuthOutfitOutfitIdIndexRoute,
+  }
+
+const AuthOutfitOutfitIdRouteRouteWithChildren =
+  AuthOutfitOutfitIdRouteRoute._addFileChildren(
+    AuthOutfitOutfitIdRouteRouteChildren,
+  )
 
 interface AuthRouteRouteChildren {
-  AuthAppRouteRoute: typeof AuthAppRouteRouteWithChildren
+  AuthOutfitsRouteRoute: typeof AuthOutfitsRouteRouteWithChildren
+  AuthWardrobeRouteRoute: typeof AuthWardrobeRouteRouteWithChildren
+  AuthOutfitOutfitIdRouteRoute: typeof AuthOutfitOutfitIdRouteRouteWithChildren
 }
 
 const AuthRouteRouteChildren: AuthRouteRouteChildren = {
-  AuthAppRouteRoute: AuthAppRouteRouteWithChildren,
+  AuthOutfitsRouteRoute: AuthOutfitsRouteRouteWithChildren,
+  AuthWardrobeRouteRoute: AuthWardrobeRouteRouteWithChildren,
+  AuthOutfitOutfitIdRouteRoute: AuthOutfitOutfitIdRouteRouteWithChildren,
 }
 
 const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(

@@ -88,43 +88,50 @@ export function WardrobeView({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">My Wardrobe</h1>
-        <Button className="gap-2" onClick={() => setUploadDialogOpen(true)}>
+    <div className="space-y-8">
+      <div className="flex items-center justify-between border-b border-foreground/10 pb-4">
+        <h1 className="text-2xl font-bold tracking-tight">My Wardrobe</h1>
+        <Button
+          className="gap-2 border border-foreground/20 bg-background hover:bg-foreground hover:text-background"
+          onClick={() => setUploadDialogOpen(true)}
+        >
           <Plus className="h-4 w-4" />
-          Add Item
+          <span className="text-xs tracking-widest uppercase">Add Item</span>
         </Button>
       </div>
 
       <FilterBar filters={filters} onFiltersChange={setFilters} />
 
       {filteredItems.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
+        <div className="flex flex-col items-center justify-center border border-foreground/10 py-24">
           {items.length === 0 ? (
             <>
-              <Shirt className="mb-4 h-12 w-12 text-muted-foreground" />
-              <h2 className="mb-2 text-lg font-medium">Your wardrobe is empty</h2>
-              <p className="mb-4 text-sm text-muted-foreground">
+              <Shirt className="mb-4 h-8 w-8 text-muted-foreground" />
+              <h2 className="mb-1 text-lg font-medium tracking-tight">Your wardrobe is empty</h2>
+              <p className="mb-6 text-xs tracking-widest text-muted-foreground uppercase">
                 Start by adding some clothing items
               </p>
-              <Button onClick={() => setUploadDialogOpen(true)}>
+              <Button
+                className="border border-foreground/20 bg-background hover:bg-foreground hover:text-background"
+                onClick={() => setUploadDialogOpen(true)}
+              >
                 <Plus className="mr-2 h-4 w-4" />
-                Add Your First Item
+                <span className="text-xs tracking-widest uppercase">Add Your First Item</span>
               </Button>
             </>
           ) : (
-            <>
-              <p className="text-muted-foreground">No items match your filters</p>
-            </>
+            <p className="text-xs tracking-widest text-muted-foreground uppercase">
+              No items match your filters
+            </p>
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-          {filteredItems.map((item) => (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+          {filteredItems.map((item, index) => (
             <ClothingItemCard
               key={item.id}
               item={item}
+              index={index}
               onDelete={onDeleteItem ? setDeleteItem : undefined}
               onEdit={onEditItem}
               onWear={onMarkWorn}
@@ -140,17 +147,21 @@ export function WardrobeView({
       />
 
       <AlertDialog onOpenChange={(open) => !open && setDeleteItem(null)} open={!!deleteItem}>
-        <AlertDialogContent>
+        <AlertDialogContent className="animate-slide-in-up rounded-sm border-foreground/20">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Item</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-xs tracking-widest uppercase">
+              Delete Item
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
               Are you sure you want to delete "{deleteItem?.name}"? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogFooter className="sm:justify-end">
+            <AlertDialogCancel className="text-xs tracking-widest uppercase">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
-              className="text-destructive-foreground bg-destructive hover:bg-destructive/90"
+              className="bg-foreground text-xs tracking-widest text-background uppercase hover:bg-foreground/90"
               onClick={handleDeleteConfirm}
             >
               Delete

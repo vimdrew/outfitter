@@ -1,4 +1,5 @@
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { SlidersHorizontal, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,31 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
+import { CORE_COLORS, COLOR_HEX } from "@/lib/colors";
+import { $getUserColors } from "@/lib/wardrobe/functions";
 import type { Category, Color, Season, WardrobeFilters } from "@/lib/wardrobe/types";
 import { CATEGORIES, CATEGORY_LABELS, SEASONS, SEASON_LABELS } from "@/lib/wardrobe/types";
-
-const COLORS: Color[] = [
-  "black",
-  "white",
-  "gray",
-  "navy",
-  "blue",
-  "light-blue",
-  "red",
-  "pink",
-  "orange",
-  "yellow",
-  "green",
-  "olive",
-  "brown",
-  "tan",
-  "beige",
-  "purple",
-  "burgundy",
-  "cream",
-  "multi",
-  "other",
-];
 
 interface FilterBarProps {
   filters: WardrobeFilters;
@@ -39,6 +19,13 @@ interface FilterBarProps {
 }
 
 export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
+  const { data: userColors = [] } = useQuery({
+    queryKey: ["user-colors"],
+    queryFn: async () => {
+      return $getUserColors();
+    },
+  });
+
   const hasActiveFilters =
     filters.categories.length > 0 ||
     filters.colors.length > 0 ||
@@ -82,12 +69,13 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
     });
   };
 
+  const displayColors = userColors.length > 0 ? userColors : CORE_COLORS;
+
   return (
-    <div className="flex flex-col gap-4 sm:flex-row">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
       <div className="relative flex-1">
-        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          className="pl-9"
+          className="rounded-sm border-foreground/20 bg-background pl-4 text-sm placeholder:text-muted-foreground/70"
           placeholder="Search items..."
           value={filters.search}
           onChange={(e) => onFiltersChange({ ...filters, search: e.target.value })}
@@ -95,63 +83,94 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
       </div>
 
       <Popover>
-        <PopoverTrigger className="gap-2">
-          <Button variant="outline">
-            <SlidersHorizontal className="h-4 w-4" />
+        <PopoverTrigger>
+          <Button
+            variant="outline"
+            className="gap-2 rounded-sm border-foreground/20 bg-background text-xs tracking-widest uppercase hover:bg-foreground hover:text-background"
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5" />
             Filters
             {hasActiveFilters && (
-              <Badge className="ml-1 h-5 w-5 justify-center p-0 text-xs" variant="secondary">
+              <Badge
+                className="ml-1 h-5 min-w-5 justify-center rounded-sm bg-foreground text-[10px] text-background"
+                variant="secondary"
+              >
                 {activeFilterCount}
               </Badge>
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="end" className="w-80">
-          <div className="grid gap-6">
+        <PopoverContent align="end" className="w-80 rounded-sm border-foreground/20 p-4">
+          <div className="grid gap-5">
             <div>
-              <Label className="text-sm font-medium">Category</Label>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <Label className="text-[10px] tracking-widest uppercase">Category</Label>
+              <div className="mt-2 flex flex-wrap gap-1.5">
                 {CATEGORIES.map((category) => (
-                  <label className="flex items-center gap-2" key={category}>
+                  <label className="flex cursor-pointer items-center gap-1.5" key={category}>
                     <Checkbox
+                      className="h-3.5 w-3.5 rounded-sm border-foreground/30"
                       checked={filters.categories.includes(category)}
                       onCheckedChange={() => toggleCategory(category)}
                     />
-                    <span className="text-sm">{CATEGORY_LABELS[category]}</span>
+                    <span className="text-xs">{CATEGORY_LABELS[category]}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            <Separator />
+            <Separator className="bg-foreground/10" />
 
             <div>
-              <Label className="text-sm font-medium">Colors</Label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {COLORS.map((color) => (
-                  <label className="flex items-center gap-2" key={color}>
-                    <Checkbox
-                      checked={filters.colors.includes(color)}
-                      onCheckedChange={() => toggleColor(color)}
+              <Label className="text-[10px] tracking-widest uppercase">
+                Colors {userColors.length > 0 ? "(your wardrobe)" : "(all)"}
+              </Label>
+              {userColors.length === 0 && (
+                <p className="mb-2 text-[10px] text-muted-foreground">
+                  Add items to filter by color
+                </p>
+              )}
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {displayColors.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => toggleColor(color)}
+                    className={`flex items-center gap-1 rounded-sm border px-2 py-1 text-xs transition-all ${
+                      filters.colors.includes(color)
+                        ? "border-foreground bg-foreground text-background"
+                        : "border-foreground/20 hover:border-foreground/50"
+                    } `}
+                  >
+                    <span
+                      className="h-3 w-3 rounded-full border border-foreground/30"
+                      style={{
+                        backgroundColor:
+                          color === "multi" ? "transparent" : COLOR_HEX[color as Color],
+                        background:
+                          color === "multi"
+                            ? "conic-gradient(red, yellow, green, blue, red)"
+                            : undefined,
+                      }}
                     />
-                    <span className="text-sm capitalize">{color.replace("-", " ")}</span>
-                  </label>
+                    <span className="capitalize">{color}</span>
+                  </button>
                 ))}
               </div>
             </div>
 
-            <Separator />
+            <Separator className="bg-foreground/10" />
 
             <div>
-              <Label className="text-sm font-medium">Seasons</Label>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <Label className="text-[10px] tracking-widest uppercase">Seasons</Label>
+              <div className="mt-2 flex flex-wrap gap-1.5">
                 {SEASONS.map((season) => (
-                  <label className="flex items-center gap-2" key={season}>
+                  <label className="flex cursor-pointer items-center gap-1.5" key={season}>
                     <Checkbox
+                      className="h-3.5 w-3.5 rounded-sm border-foreground/30"
                       checked={filters.seasons.includes(season)}
                       onCheckedChange={() => toggleSeason(season)}
                     />
-                    <span className="text-sm">{SEASON_LABELS[season]}</span>
+                    <span className="text-xs">{SEASON_LABELS[season]}</span>
                   </label>
                 ))}
               </div>
@@ -159,8 +178,13 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
 
             {hasActiveFilters && (
               <>
-                <Separator />
-                <Button className="w-full" size="sm" variant="ghost" onClick={clearFilters}>
+                <Separator className="bg-foreground/10" />
+                <Button
+                  className="w-full rounded-sm border border-foreground/20 bg-background text-xs tracking-widest uppercase hover:bg-foreground hover:text-background"
+                  size="sm"
+                  variant="ghost"
+                  onClick={clearFilters}
+                >
                   Clear all filters
                 </Button>
               </>
@@ -170,8 +194,13 @@ export function FilterBar({ filters, onFiltersChange }: FilterBarProps) {
       </Popover>
 
       {hasActiveFilters && (
-        <Button className="gap-2" size="icon" variant="ghost" onClick={clearFilters}>
-          <X className="h-4 w-4" />
+        <Button
+          className="gap-2 rounded-sm border border-foreground/20 bg-background text-xs tracking-widest uppercase hover:bg-foreground hover:text-background"
+          size="icon"
+          variant="ghost"
+          onClick={clearFilters}
+        >
+          <X className="h-3.5 w-3.5" />
           <span className="sr-only">Clear filters</span>
         </Button>
       )}
